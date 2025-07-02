@@ -1,147 +1,131 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Calendario ICS Visual</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f6f6fa;
-            padding: 40px;
-            text-align: center;
-        }
-
-        #calendar {
-            max-width: 320px;
-            margin: auto;
-        }
-
-        .flatpickr-calendar {
-            position: relative !important;
-            display: block;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 30%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            width: 300px;
-            z-index: 999;
-        }
-
-        .modal input,
-        .modal textarea {
-            width: 100%;
-            margin-top: 10px;
-            padding: 8px;
-        }
-
-        .modal button {
-            margin-top: 12px;
-            padding: 10px;
-            width: 100%;
-            background: #d351b3;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        code {
-            display: inline-block;
-            margin-top: 20px;
-            background: #f0f0f0;
-            padding: 8px;
-            border-radius: 6px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Calendario ICS Visual</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f6f6fa;
+      padding: 40px;
+      text-align: center;
+    }
+    #calendar {
+      max-width: 320px;
+      margin: auto;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      width: 300px;
+      z-index: 999;
+    }
+    .modal input,
+    .modal textarea {
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px;
+    }
+    .modal button {
+      margin-top: 12px;
+      padding: 10px;
+      width: 100%;
+      background: #d351b3;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    code {
+      display: inline-block;
+      margin-top: 20px;
+      background: #f0f0f0;
+      padding: 8px;
+      border-radius: 6px;
+    }
+  </style>
 </head>
-
 <body>
+  <h2>📅 Calendario ICS Visual</h2>
 
-    <h2>📅 Calendario ICS Visual</h2>
+  <div id="calendar"></div>
 
-    <div id="calendar"></div>
+  <div class="modal" id="modal">
+    <h3>Nuevo evento</h3>
+    <input type="text" id="title" placeholder="Título del evento" required />
+    <textarea id="desc" placeholder="Descripción (opcional)"></textarea>
+    <button id="saveBtn">Guardar evento</button>
+  </div>
 
-    <div class="modal" id="modal">
-        <h3>Nuevo evento</h3>
-        <input type="text" id="title" placeholder="Título del evento" required />
-        <textarea id="desc" placeholder="Descripción (opcional)"></textarea>
-        <button id="saveBtn">Guardar evento</button>
-    </div>
+  <p><strong>Enlace ICS:</strong></p>
+  <code id="calendarLink"></code>
 
-    <p><strong>Enlace ICS:</strong></p>
-    <code id="calendarLink"></code>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    const modal = document.getElementById('modal');
+    const titleInput = document.getElementById('title');
+    const descInput = document.getElementById('desc');
+    const saveBtn = document.getElementById('saveBtn');
+    const calendarLink = document.getElementById('calendarLink');
 
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script>
-        const modal = document.getElementById('modal');
-        const titleInput = document.getElementById('title');
-        const descInput = document.getElementById('desc');
-        const saveBtn = document.getElementById('saveBtn');
-        const calendarLink = document.getElementById('calendarLink');
+    calendarLink.textContent = window.location.origin + '/calendario.ics';
 
-        calendarLink.textContent = window.location.origin + '/calendario.ics';
+    let selectedStart = null;
+    let selectedEnd = null;
 
-        let selectedStart = null;
-        let selectedEnd = null;
-
-        flatpickr("#calendar", {
-            inline: true,
-            enableTime: true,
-            mode: "single", // 👈 Cambiar a selección única
-            dateFormat: "Y-m-d\\TH:i",
-            onChange: function (selectedDates) {
-                if (selectedDates.length === 1) {
-                    selectedStart = toICalFormat(selectedDates[0]);
-                    const endDate = new Date(selectedDates[0].getTime() + 60 * 60 * 1000); // +1h
-                    selectedEnd = toICalFormat(endDate);
-                    modal.style.display = 'block';
-                }
-            }
-        });
-
-
-        function toICalFormat(date) {
-            return new Date(date).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    flatpickr("#calendar", {
+      inline: true,
+      enableTime: true,
+      mode: "single",
+      dateFormat: "Y-m-d\\TH:i",
+      onChange: function (selectedDates) {
+        if (selectedDates.length === 1) {
+          selectedStart = toICalFormat(selectedDates[0]);
+          const endDate = new Date(selectedDates[0].getTime() + 60 * 60 * 1000); // +1h
+          selectedEnd = toICalFormat(endDate);
+          modal.style.display = 'block';
         }
+      }
+    });
 
-        saveBtn.onclick = async () => {
-            const title = titleInput.value;
-            const desc = descInput.value;
+    function toICalFormat(date) {
+      return new Date(date).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    }
 
-            if (!title || !selectedStart || !selectedEnd) {
-                alert("Faltan datos del evento.");
-                return;
-            }
+    saveBtn.onclick = async () => {
+      const title = titleInput.value;
+      const desc = descInput.value;
 
-            const params = new URLSearchParams({
-                title,
-                desc,
-                start: selectedStart,
-                end: selectedEnd
-            });
+      if (!title || !selectedStart || !selectedEnd) {
+        alert("Faltan datos del evento.");
+        return;
+      }
 
-            const res = await fetch('/add?' + params.toString());
-            const msg = await res.text();
-            alert(msg);
+      const params = new URLSearchParams({
+        title,
+        desc,
+        start: selectedStart,
+        end: selectedEnd
+      });
 
-            // Reset
-            modal.style.display = 'none';
-            titleInput.value = '';
-            descInput.value = '';
-            selectedStart = null;
-            selectedEnd = null;
-        };
-    </script>
+      const res = await fetch('/add?' + params.toString());
+      const msg = await res.text();
+      alert(msg);
+
+      modal.style.display = 'none';
+      titleInput.value = '';
+      descInput.value = '';
+      selectedStart = null;
+      selectedEnd = null;
+    };
+  </script>
 </body>
-
 </html>

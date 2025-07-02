@@ -2,6 +2,7 @@ const http = require('http');
 const url = require('url');
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
 
 const PORT = 8080;
 
@@ -34,12 +35,11 @@ function buildICS() {
 
   const icsContent = [...header, ...eventBlocks, ...footer].join('\r\n');
 
-  // 🔥 GUARDAR en disco para subir a GitHub Pages
+  // Guardar archivo ICS en el mismo repositorio GitHub Pages
   fs.writeFileSync(path.join(__dirname, 'calendario.ics'), icsContent);
 
   return icsContent;
 }
-
 
 http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
@@ -92,6 +92,18 @@ http.createServer((req, res) => {
     };
 
     events.push(newEvent);
+
+    // Regenerar y guardar .ics
+    buildICS();
+
+    // Hacer push automático
+    exec('node push-to-pages.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error('❌ Error al hacer push automático:', stderr);
+      } else {
+        console.log('✅ Push automático realizado:\n', stdout);
+      }
+    });
 
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Evento añadido correctamente');
