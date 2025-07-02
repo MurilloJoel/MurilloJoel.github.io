@@ -32,8 +32,14 @@ function buildICS() {
     ].join('\r\n');
   });
 
-  return [...header, ...eventBlocks, ...footer].join('\r\n');
+  const icsContent = [...header, ...eventBlocks, ...footer].join('\r\n');
+
+  // 🔥 GUARDAR en disco para subir a GitHub Pages
+  fs.writeFileSync(path.join(__dirname, 'gh-pages', 'calendario.ics'), icsContent);
+
+  return icsContent;
 }
+
 
 http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
