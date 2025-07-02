@@ -35,7 +35,7 @@ function buildICS() {
   const icsContent = [...header, ...eventBlocks, ...footer].join('\r\n');
 
   // 🔥 GUARDAR en disco para subir a GitHub Pages
-  fs.writeFileSync(path.join(__dirname, 'gh-pages', 'calendario.ics'), icsContent);
+  fs.writeFileSync(path.join(__dirname, 'calendario.ics'), icsContent);
 
   return icsContent;
 }
